@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Unified AI Chatbot</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+<link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+</head>
+<body>
+
+<!-- ═══════════════════ SIDEBAR ═══════════════════ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">
+      <span class="logo-icon">🤖</span>
+      <span class="logo-text">Unified AI</span>
+    </div>
+    <button class="sidebar-toggle" id="sidebarToggle" title="Toggle sidebar">☰</button>
+  </div>
+
+  <!-- Mode selector -->
+  <div class="sidebar-section">
+    <p class="sidebar-label">MODE</p>
+    <div class="mode-btns">
+      <button class="mode-btn active" data-mode="chat">💬 Chat</button>
+      <button class="mode-btn" data-mode="code">💻 Code</button>
+      <button class="mode-btn" data-mode="image">🎨 Image</button>
+    </div>
+  </div>
+
+  <!-- Provider selector -->
+  <div class="sidebar-section">
+    <p class="sidebar-label">PROVIDER</p>
+    <select id="providerSelect" class="styled-select"></select>
+  </div>
+
+  <!-- Model selector -->
+  <div class="sidebar-section">
+    <p class="sidebar-label">MODEL</p>
+    <select id="modelSelect" class="styled-select"></select>
+  </div>
+
+  <!-- Temperature -->
+  <div class="sidebar-section" id="tempSection">
+    <p class="sidebar-label">TEMPERATURE <span id="tempValue">0.7</span></p>
+    <input type="range" id="tempSlider" min="0" max="2" step="0.1" value="0.7" class="slider"/>
+  </div>
+
+  <!-- System prompt -->
+  <div class="sidebar-section" id="sysSection">
+    <p class="sidebar-label">SYSTEM PROMPT</p>
+    <textarea id="systemPrompt" class="styled-textarea" rows="3"
+              placeholder="Optional: Set AI behaviour…"></textarea>
+  </div>
+
+  <!-- Actions -->
+  <div class="sidebar-section sidebar-actions">
+    <button class="action-btn danger" id="clearBtn">🗑 Clear Chat</button>
+    <button class="action-btn" id="configBtn">⚙️ API Keys</button>
+  </div>
+
+  <!-- Free providers info -->
+  <div class="sidebar-section free-info">
+    <p class="sidebar-label">FREE PROVIDERS</p>
+    <div class="badge-list">
+      <a href="https://console.groq.com/" target="_blank" class="badge green">Groq →</a>
+      <a href="https://aistudio.google.com/app/apikey" target="_blank" class="badge blue">Gemini →</a>
+      <a href="https://huggingface.co/settings/tokens" target="_blank" class="badge yellow">HuggingFace →</a>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══════════════════ MAIN ═══════════════════ -->
+<main class="main" id="mainContent">
+
+  <!-- Top bar -->
+  <header class="topbar">
+    <button class="mobile-toggle" id="mobileToggle">☰</button>
+    <div class="topbar-title">
+      <span id="topbarMode">💬 Chat</span>
+      <span class="topbar-provider" id="topbarProvider">Select a provider</span>
+    </div>
+    <div class="topbar-actions">
+      <button class="icon-btn" id="themeToggle" title="Toggle theme">🌙</button>
+    </div>
+  </header>
+
+  <!-- ── CHAT mode ── -->
+  <section class="panel active" id="chatPanel">
+    <div class="messages" id="messages">
+      <div class="welcome-msg">
+        <div class="welcome-icon">🤖</div>
+        <h2>Welcome to Unified AI Chatbot!</h2>
+        <p>Select a provider from the sidebar and start chatting.</p>
+        <div class="welcome-cards">
+          <div class="wcard">
+            <span>⚡ Groq LLaMA-3</span><small>Fastest – 100% Free</small>
+          </div>
+          <div class="wcard">
+            <span>✨ Google Gemini</span><small>Smart – Free tier</small>
+          </div>
+          <div class="wcard">
+            <span>🎨 AI Images</span><small>Pollinations – Free</small>
+          </div>
+          <div class="wcard">
+            <span>💻 Code AI</span><small>Debug, explain, generate</small>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="input-area">
+      <textarea id="chatInput" placeholder="Type a message… (Enter to send, Shift+Enter for new line)"
+                rows="1"></textarea>
+      <button class="send-btn" id="sendBtn">
+        <span id="sendIcon">➤</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ── CODE mode ── -->
+  <section class="panel" id="codePanel">
+    <div class="code-controls">
+      <div class="ctrl-row">
+        <select id="codeTask" class="styled-select">
+          <option value="explain">🔍 Explain Code</option>
+          <option value="debug">🐛 Debug Code</option>
+          <option value="generate">✨ Generate Code</option>
+          <option value="review">📋 Review Code</option>
+        </select>
+        <select id="codeLang" class="styled-select">
+          <option>python</option><option>javascript</option><option>typescript</option>
+          <option>java</option><option>cpp</option><option>c</option>
+          <option>go</option><option>rust</option><option>sql</option>
+          <option>html</option><option>css</option><option>bash</option>
+          <option>php</option><option>ruby</option><option>swift</option>
+        </select>
+        <button class="action-btn" id="runCodeBtn">▶ Run</button>
+      </div>
+      <textarea id="codeInput" class="code-textarea"
+                placeholder="Paste your code here, or describe what you want to generate…"></textarea>
+    </div>
+    <div class="code-output" id="codeOutput">
+      <p class="placeholder-text">Code assistance output will appear here…</p>
+    </div>
+  </section>
+
+  <!-- ── IMAGE mode ── -->
+  <section class="panel" id="imagePanel">
+    <div class="image-controls">
+      <textarea id="imagePrompt" class="styled-textarea" rows="3"
+                placeholder="Describe the image you want to generate…"></textarea>
+      <div class="image-options">
+        <select id="imageModel" class="styled-select">
+          <option value="pollinations">Pollinations AI – FREE (no key)</option>
+          <option value="dall-e-3">DALL-E 3 (OpenAI key required)</option>
+          <option value="dall-e-2">DALL-E 2 (OpenAI key required)</option>
+        </select>
+        <select id="imageSize" class="styled-select">
+          <option value="1024x1024">1024×1024</option>
+          <option value="1024x1792">1024×1792 (portrait)</option>
+          <option value="1792x1024">1792×1024 (landscape)</option>
+          <option value="512x512">512×512</option>
+        </select>
+        <button class="action-btn primary" id="generateBtn">🎨 Generate</button>
+      </div>
+    </div>
+    <div class="image-output" id="imageOutput">
+      <p class="placeholder-text">Generated image will appear here…</p>
+    </div>
+  </section>
+
+</main>
+
+<!-- ═══════════════════ API KEY MODAL ═══════════════════ -->
+<div class="modal-overlay" id="configModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>⚙️ Configure API Keys</h3>
+      <button class="modal-close" id="modalClose">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="apiKeyForm" autocomplete="off" onsubmit="return false;">
+      <div class="api-group free-group">
+        <h4>🆓 Free Providers</h4>
+        <div class="api-field">
+          <label>Groq API Key
+            <a href="https://console.groq.com/" target="_blank" class="get-key-link">Get FREE key →</a>
+          </label>
+          <input type="password" id="groqKey" placeholder="gsk_…"/>
+        </div>
+        <div class="api-field">
+          <label>Google Gemini API Key
+            <a href="https://aistudio.google.com/app/apikey" target="_blank" class="get-key-link">Get FREE key →</a>
+          </label>
+          <input type="password" id="geminiKey" placeholder="AIza…"/>
+        </div>
+        <div class="api-field">
+          <label>HuggingFace Token
+            <a href="https://huggingface.co/settings/tokens" target="_blank" class="get-key-link">Get FREE token →</a>
+          </label>
+          <input type="password" id="hfKey" placeholder="hf_…"/>
+        </div>
+      </div>
+
+      <div class="api-group paid-group">
+        <h4>💳 Paid Providers (Optional)</h4>
+        <div class="api-field">
+          <label>OpenAI API Key
+            <a href="https://platform.openai.com/api-keys" target="_blank" class="get-key-link">Get key →</a>
+          </label>
+          <input type="password" id="openaiKey" placeholder="sk-…"/>
+        </div>
+        <div class="api-field">
+          <label>Anthropic API Key
+            <a href="https://console.anthropic.com/" target="_blank" class="get-key-link">Get key →</a>
+          </label>
+          <input type="password" id="anthropicKey" placeholder="sk-ant-…"/>
+        </div>
+      </div>
+      </form>
+    </div><!-- /modal-body -->
+    <div class="modal-footer">
+      <button class="action-btn" id="modalCancel">Cancel</button>
+      <button class="action-btn primary" id="saveConfig">💾 Save Keys</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast notification -->
+<div class="toast" id="toast"></div>
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
